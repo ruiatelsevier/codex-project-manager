@@ -1,9 +1,15 @@
 from __future__ import annotations
 
+import argparse
+import json
 import re
 from pathlib import Path
+from typing import Sequence
 
 MEMORY_TOPICS = ("architecture", "workflows", "pitfalls")
+DEFAULT_HOOK_TEMPLATE = (
+    "codex-plugin-dev/plugins/codex-project-manager/templates/hooks.json"
+)
 
 
 def normalize_rule(rule: str) -> str:
@@ -129,3 +135,106 @@ def ensure_memory_modules(memories_root: Path, modules: list[str]) -> dict[str, 
         "created": created,
         "skipped": skipped,
     }
+
+
+def target_label(path: Path) -> str:
+    parts = path.parts
+    if len(parts) >= 2 and parts[-2:] == (".agents", "skills"):
+        return ".agents/skills"
+    if len(parts) >= 2 and parts[-2:] == (".codex", "hooks.json"):
+        return ".codex/hooks.json"
+    return path.as_posix()
+
+
+def ensure_project_skills_dir(path: Path) -> dict[str, object]:
+    target = target_label(path)
+    if path.exists():
+        return {
+            "target": target,
+            "status": "skipped",
+            "reason": "already_exists",
+        }
+
+    path.mkdir(parents=True)
+    return {"target": target, "status": "created"}
+
+
+def install_hook_if_missing(path: Path, template_path: Path) -> dict[str, object]:
+    target = target_label(path)
+    if path.exists():
+        return {
+            "target": target,
+            "status": "needs_manual_merge",
+            "reason": "already_exists",
+        }
+
+    try:
+        template_text = template_path.read_text(encoding="utf-8")
+        json.loads(template_text)
+    except json.JSONDecodeError as exc:
+        return {
+            "target": target,
+            "status": "error",
+            "reason": "invalid_template_json",
+            "error": str(exc),
+        }
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(template_text, encoding="utf-8")
+    return {"target": target, "status": "created"}
+
+
+def build_summary(
+    root: Path,
+    rules: list[str],
+    modules: list[str],
+    project_skills_dir: Path,
+    install_hook: bool,
+    hook_template: Path,
+) -> dict[str, object]:
+    root.mkdir(parents=True, exist_ok=True)
+    hook_result: dict[str, object]
+    if install_hook:
+        hook_result = install_hook_if_missing(root / ".codex" / "hooks.json", hook_template)
+    else:
+        hook_result = {
+            "target": ".codex/hooks.json",
+            "status": "skipped",
+            "reason": "not_requested",
+        }
+
+    return {
+        "agents": ensure_agents_file(root / "AGENTS.md", rules),
+        "memories": ensure_memory_modules(root / "memories", modules),
+        "project_skills": ensure_project_skills_dir(root / project_skills_dir),
+        "hook": hook_result,
+    }
+
+
+def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", default=".")
+    parser.add_argument("--rules", action="append", default=[])
+    parser.add_argument("--module", action="append", default=[])
+    parser.add_argument("--project-skills-dir", default=".agents/skills")
+    parser.add_argument("--install-hook", action="store_true")
+    parser.add_argument("--hook-template", default=DEFAULT_HOOK_TEMPLATE)
+    return parser.parse_args(argv)
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = parse_args(argv)
+    summary = build_summary(
+        root=Path(args.root),
+        rules=args.rules,
+        modules=args.module,
+        project_skills_dir=Path(args.project_skills_dir),
+        install_hook=args.install_hook,
+        hook_template=Path(args.hook_template),
+    )
+    print(json.dumps(summary, indent=2, sort_keys=True))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
