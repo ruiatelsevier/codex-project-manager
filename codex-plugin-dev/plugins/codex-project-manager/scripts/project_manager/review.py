@@ -50,7 +50,7 @@ def build_suggestions(candidates: list[ReviewCandidate]) -> list[dict]:
         destination = {
             "rule": "AGENTS.md",
             "knowledge": plan_memory_path("agent-core", "workflows"),
-            "project_skill": ".codex/skills/agent-core-debugging/SKILL.md",
+            "project_skill": ".agents/skills/agent-core-debugging/SKILL.md",
             "global_preference_candidate": "suggest-global-memory",
         }[kind]
         suggestions.append(
