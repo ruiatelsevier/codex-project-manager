@@ -5,7 +5,7 @@ ROOT = Path(__file__).resolve().parents[2]
 PLUGIN_SCRIPTS = ROOT / "codex-plugin-dev" / "plugins" / "codex-project-manager" / "scripts"
 sys.path.insert(0, str(PLUGIN_SCRIPTS))
 
-from project_manager.init import ensure_agents_file, ensure_memory_modules
+from project_manager.init import ensure_agents_file, ensure_memory_modules, normalize_module_name
 
 
 def test_creates_agents_file_with_working_rules(tmp_path: Path):
@@ -131,3 +131,12 @@ def test_skips_memory_creation_without_modules(tmp_path: Path):
         "created": [],
         "skipped": [],
     }
+
+
+def test_rejects_empty_normalized_module_name():
+    try:
+        normalize_module_name("!!!")
+    except ValueError as exc:
+        assert "Module name is required" in str(exc)
+    else:
+        raise AssertionError("Expected ValueError for empty normalized module name")
