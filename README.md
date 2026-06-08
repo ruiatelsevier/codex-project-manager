@@ -5,7 +5,7 @@ It helps a repository keep three kinds of durable context:
 
 - Project rules in `AGENTS.md`
 - Project knowledge in `memories/<module>/<topic>.md`
-- Project-local repeatable workflows in `.codex/skills/`
+- Project-local repeatable workflows in `.agents/skills/`
 
 The plugin is intentionally conservative. It suggests global memory candidates, but it does not write to
 personal/global memory automatically.
@@ -18,6 +18,7 @@ codex-plugin-dev/
   plugins/codex-project-manager/
     .codex-plugin/plugin.json
     skills/
+      codex-project-manager-init/SKILL.md
       project-memory-bootstrap/SKILL.md
       project-review/SKILL.md
       project-curate/SKILL.md
@@ -25,6 +26,7 @@ codex-plugin-dev/
       apply.py
       classify.py
       curate.py
+      init.py
       memory_paths.py
       models.py
       review.py
@@ -101,12 +103,45 @@ python3 -m venv .venv
 Expected result:
 
 ```text
-8 passed
+21 passed
 ```
 
 ## Core Workflows
 
-### 1. Bootstrap Project Memory
+### 1. Initialize A Repository
+
+Use this after installing and enabling the plugin.
+
+In the Codex composer, type `/`, search for `codex-project-manager-init`, and trigger the skill.
+This is a slash-list skill entry, not a native platform command named `/cpm-init`.
+
+The init workflow asks for:
+
+- project rules for `AGENTS.md`
+- optional module names for `memories/<module>/`
+- whether to install the optional `.codex/hooks.json` reminder
+
+Default behavior:
+
+- `AGENTS.md` is created only if missing.
+- Existing `AGENTS.md` files get a bounded `## Codex Project Manager Rules` section.
+- `memories/<module>/architecture.md`, `workflows.md`, and `pitfalls.md` are created only for user-confirmed modules.
+- `.agents/skills/` is created if missing.
+- `.codex/hooks.json` is installed only after confirmation and is never overwritten.
+
+Local smoke test:
+
+```bash
+tmpdir="$(mktemp -d)"
+python3 codex-plugin-dev/plugins/codex-project-manager/scripts/project_manager/init.py \
+  --root "$tmpdir" \
+  --rules "Run focused tests before closing plugin edits" \
+  --module frontend
+```
+
+Expected JSON includes `agents`, `memories`, `project_skills`, and `hook` keys.
+
+### 2. Bootstrap Project Memory
 
 Use this when preparing a repository to store project-local cognition.
 
@@ -129,7 +164,7 @@ memories/tools/pitfalls.md
 memories/gateway/architecture.md
 memories/gateway/workflows.md
 memories/gateway/pitfalls.md
-.codex/skills/
+.agents/skills/
 ```
 
 Each memory file is topic-scoped:
@@ -138,7 +173,7 @@ Each memory file is topic-scoped:
 - `workflows.md`: repeatable operational or development flows
 - `pitfalls.md`: known traps, failure modes, and verification gotchas
 
-### 2. Review Finished Work
+### 3. Review Finished Work
 
 Use this after a coding stage, debugging session, review thread, or architecture explanation.
 
@@ -152,7 +187,7 @@ The review flow classifies candidate notes into:
 
 - `rule`: project rules that belong in `AGENTS.md`
 - `knowledge`: project facts that belong in `memories/`
-- `project_skill`: repeatable repo-local workflows that belong in `.codex/skills/`
+- `project_skill`: repeatable repo-local workflows that belong in `.agents/skills/`
 - `global_preference_candidate`: user preference candidates that should be reviewed manually
 
 For a local smoke test, run:
@@ -177,7 +212,7 @@ The output is JSON:
 
 The actual demo prints four suggestions, one for each destination class.
 
-### 3. Curate Existing Memory
+### 4. Curate Existing Memory
 
 Use this when project cognition starts to fragment or duplicate itself.
 
@@ -240,6 +275,20 @@ Expected result is the one-line reminder above.
 
 ## Script Reference
 
+### `init.py`
+
+```bash
+python3 codex-plugin-dev/plugins/codex-project-manager/scripts/project_manager/init.py \
+  --rules "Run focused tests" \
+  --module frontend
+```
+
+- `--rules`: project rule to write; repeat for multiple rules
+- `--module`: project module to initialize under `memories/`; repeat for multiple modules
+- `--project-skills-dir`: project skill directory, defaults to `.agents/skills`
+- `--install-hook`: install `.codex/hooks.json` from the template if it does not already exist
+- `--root`: target repository root, defaults to the current directory
+
 ### `review.py`
 
 ```bash
@@ -298,8 +347,10 @@ Run focused tests:
 
 ```bash
 .venv/bin/python -m pytest tests/codex_project_manager/test_classify.py -q
+.venv/bin/python -m pytest tests/codex_project_manager/test_init.py -q
 .venv/bin/python -m pytest tests/codex_project_manager/test_memory_paths.py tests/codex_project_manager/test_apply.py -q
 .venv/bin/python -m pytest tests/codex_project_manager/test_curate.py -q
+.venv/bin/python -m pytest tests/codex_project_manager/test_review.py -q
 ```
 
 Validate JSON assets:
@@ -317,4 +368,4 @@ python3 -m json.tool .codex/hooks.json >/dev/null
 - Global memory candidates are suggestion-only.
 - Curation reports overlaps; it does not delete, merge, or move files.
 - Project-local writes should be applied only after user confirmation.
-- `AGENTS.md`, `memories/`, and `.codex/skills/` are the intended durable project surfaces.
+- `AGENTS.md`, `memories/`, and `.agents/skills/` are the intended durable project surfaces.
