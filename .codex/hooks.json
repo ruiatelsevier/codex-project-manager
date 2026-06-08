@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matchers": [
+          "write_file",
+          "patch",
+          "edit_file"
+        ],
+        "command": "python3 codex-plugin-dev/plugins/codex-project-manager/scripts/project_manager/review.py --detect-only"
+      }
+    ]
+  }
+}
