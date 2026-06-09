@@ -1,5 +1,11 @@
 # Codex Project Manager
 
+<p>
+  <a href="README.md"><strong>English</strong></a>
+  ·
+  <a href="README_ZN.md"><strong>中文</strong></a>
+</p>
+
 Codex Project Manager is a repo-local Codex plugin for preserving project cognition at stage boundaries.
 It helps a repository keep three kinds of durable context:
 
@@ -119,7 +125,7 @@ Expected result:
 Use this after installing and enabling the plugin.
 
 In the Codex composer, type `/`, search for `codex-project-manager-init`, and trigger the skill.
-This is a slash-list skill entry, not a native platform command named `/cpm-init`.
+This is a slash-list skill entry.
 
 The init workflow asks for:
 
@@ -331,6 +337,5 @@ python3 -m json.tool .codex/hooks.json >/dev/null
 
 - Suggestions are separate from writes.
 - Global memory candidates are suggestion-only.
-- Curation reports overlaps; it does not delete, merge, or move files.
 - Project-local writes should be applied only after user confirmation.
 - `AGENTS.md`, `memories/`, and `.agents/skills/` are the intended durable project surfaces.

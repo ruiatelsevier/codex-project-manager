@@ -1,6 +1,10 @@
 # Codex Project Manager
 
-[English](README.md) | [中文](README_ZN.md)
+<p>
+  <a href="README.md"><strong>English</strong></a>
+  ·
+  <a href="README_ZN.md"><strong>中文</strong></a>
+</p>
 
 Codex Project Manager 是一个仓库本地的 Codex 插件，用来在阶段边界保存项目上下文。
 它帮助仓库维护三类长期信息：
