@@ -18,20 +18,20 @@ def demo_candidates() -> list[ReviewCandidate]:
     return [
         ReviewCandidate(
             id="r1",
-            title="Agent-core verification guidance",
-            summary="Future work in this repo should run focused pytest for agent-core edits before closing the task.",
+            title="Frontend verification guidance",
+            summary="Future work in this repo should run focused pytest for frontend edits before closing the task.",
             evidence=["A review thread identified repeated verification friction."],
         ),
         ReviewCandidate(
             id="k1",
-            title="Agent core workflow",
-            summary="AIAgent initializes state, assembles prompt and context, loops through model calls and tools, then updates session state.",
+            title="Frontend state flow",
+            summary="The frontend state cache is invalidated after successful saves.",
             evidence=["A high-level architecture explanation was produced."],
         ),
         ReviewCandidate(
             id="s1",
-            title="How to debug the agent loop in this repo",
-            summary="To debug the loop here, inspect run_agent.py, then agent/conversation_loop.py, then model_tools.py.",
+            title="How to debug frontend state in this repo",
+            summary="To debug frontend state here, inspect the state store, the save handler, and the cache invalidation path.",
             evidence=["A repeatable debugging method was documented."],
         ),
         ReviewCandidate(
@@ -49,9 +49,8 @@ def build_suggestions(candidates: list[ReviewCandidate]) -> list[dict]:
         kind = classify_candidate(candidate)
         destination = {
             "rule": "AGENTS.md",
-            "knowledge": plan_memory_path("agent-core", "workflows"),
-            "project_skill": ".agents/skills/agent-core-debugging/SKILL.md",
-            "global_preference_candidate": "suggest-global-memory",
+            "knowledge": plan_memory_path("frontend", "state-model"),
+            "personal_memory": "memory-tool-after-user-approval",
         }[kind]
         suggestions.append(
             {

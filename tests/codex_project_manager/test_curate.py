@@ -9,9 +9,9 @@ from project_manager.curate import find_memory_overlaps
 
 
 def test_detects_duplicate_memory_headings(tmp_path: Path):
-    mem_root = tmp_path / "memories" / "agent-core"
+    mem_root = tmp_path / "memories" / "frontend"
     mem_root.mkdir(parents=True)
-    (mem_root / "workflows.md").write_text("# Workflows\n\n## Loop\n\nAIAgent loops.\n", encoding="utf-8")
-    (mem_root / "architecture.md").write_text("# Architecture\n\n## Loop\n\nAIAgent loops.\n", encoding="utf-8")
+    (mem_root / "state.md").write_text("# State\n\n## Cache\n\nCache notes.\n", encoding="utf-8")
+    (mem_root / "rendering.md").write_text("# Rendering\n\n## Cache\n\nCache notes.\n", encoding="utf-8")
     overlaps = find_memory_overlaps(tmp_path / "memories")
-    assert overlaps == [("agent-core/workflows.md", "agent-core/architecture.md", "Loop")]
+    assert overlaps == [("frontend/rendering.md", "frontend/state.md", "Cache")]

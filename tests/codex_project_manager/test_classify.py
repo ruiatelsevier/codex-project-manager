@@ -12,8 +12,8 @@ from project_manager.models import ReviewCandidate
 def test_classifies_rule_candidate():
     candidate = ReviewCandidate(
         id="c1",
-        title="Run pytest before closing agent-core edits",
-        summary="Future work in this repo should run the agent-core pytest subset before closing agent-core changes.",
+        title="Run pytest before closing frontend edits",
+        summary="Future work in this repo should run the frontend pytest subset before closing frontend changes.",
         evidence=["User asked for repeatable verification guidance."],
     )
     result = classify_candidate(candidate)
@@ -23,26 +23,26 @@ def test_classifies_rule_candidate():
 def test_classifies_knowledge_candidate():
     candidate = ReviewCandidate(
         id="c2",
-        title="Agent core workflow overview",
-        summary="AIAgent initializes state, assembles prompt and context, then loops through model calls and tools.",
+        title="Frontend state workflow overview",
+        summary="The frontend state cache is invalidated after successful saves.",
         evidence=["Thread produced an architecture explanation."],
     )
     result = classify_candidate(candidate)
     assert result == "knowledge"
 
 
-def test_classifies_project_skill_candidate():
+def test_classifies_repeatable_workflow_as_knowledge_candidate():
     candidate = ReviewCandidate(
         id="c3",
-        title="Debug the agent loop in this repo",
-        summary="To debug the agent loop here, inspect run_agent.py, agent/conversation_loop.py, and model_tools.py in that order.",
+        title="Debug frontend state in this repo",
+        summary="To debug frontend state here, inspect the state store, save handler, and cache invalidation path in that order.",
         evidence=["Thread described a repeatable task recipe."],
     )
     result = classify_candidate(candidate)
-    assert result == "project_skill"
+    assert result == "knowledge"
 
 
-def test_classifies_global_preference_candidate():
+def test_classifies_personal_memory_candidate():
     candidate = ReviewCandidate(
         id="c4",
         title="User prefers concise answers",
@@ -50,4 +50,4 @@ def test_classifies_global_preference_candidate():
         evidence=["User explicitly asked for brevity."],
     )
     result = classify_candidate(candidate)
-    assert result == "global_preference_candidate"
+    assert result == "personal_memory"

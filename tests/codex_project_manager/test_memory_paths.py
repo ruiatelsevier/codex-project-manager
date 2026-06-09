@@ -8,15 +8,24 @@ sys.path.insert(0, str(PLUGIN_SCRIPTS))
 from project_manager.memory_paths import plan_memory_path
 
 
-def test_plans_agent_core_workflow_path():
-    path = plan_memory_path(module="agent-core", topic="workflows")
-    assert path == "memories/agent-core/workflows.md"
+def test_plans_module_topic_path():
+    path = plan_memory_path(module="frontend_app", topic="state model")
+    assert path == "memories/frontend-app/state-model.md"
 
 
-def test_rejects_unknown_topic():
+def test_rejects_empty_topic():
     try:
-        plan_memory_path(module="agent-core", topic="random-notes")
+        plan_memory_path(module="frontend", topic=" ")
     except ValueError as exc:
-        assert "Unsupported topic" in str(exc)
+        assert "Topic name is required" in str(exc)
     else:
-        raise AssertionError("Expected ValueError for unsupported topic")
+        raise AssertionError("Expected ValueError for empty topic")
+
+
+def test_rejects_empty_module():
+    try:
+        plan_memory_path(module="!!!", topic="state")
+    except ValueError as exc:
+        assert "Module name is required" in str(exc)
+    else:
+        raise AssertionError("Expected ValueError for empty module")

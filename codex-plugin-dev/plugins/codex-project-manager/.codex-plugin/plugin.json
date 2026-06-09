@@ -1,7 +1,7 @@
 {
   "name": "codex-project-manager",
-  "version": "0.1.0",
-  "description": "Capture and curate project rules, knowledge, and project-local skills for Codex repositories.",
+  "version": "0.1.0+codex.20260608180220",
+  "description": "Capture project rules, knowledge, and project-local skills for Codex repositories.",
   "author": {
     "name": "Local Development",
     "email": "local@example.invalid",
@@ -16,13 +16,13 @@
     "memory",
     "skills",
     "review",
-    "curation"
+    "memory-review"
   ],
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Manager",
     "shortDescription": "Capture repo rules, knowledge, and skills",
-    "longDescription": "A Codex plugin that helps preserve project rules in AGENTS.md, project knowledge in memories/, and project-local skills in .codex/skills, with review and curation workflows inspired by Hermes Agent.",
+    "longDescription": "A Codex plugin that helps preserve project rules in AGENTS.md, project knowledge in memories/, and project-local skills in .agents/skills, with initialization and review workflows inspired by Hermes Agent.",
     "developerName": "Local Development",
     "category": "Productivity",
     "capabilities": [
@@ -34,9 +34,10 @@
     "privacyPolicyURL": "https://example.invalid/privacy",
     "termsOfServiceURL": "https://example.invalid/terms",
     "defaultPrompt": [
+      "@Project Manager initialize this repo with codex-project-manager-init",
       "@Project Manager review this finished work and suggest project memory updates",
-      "@Project Manager bootstrap project memory folders for this repo",
-      "@Project Manager curate existing project memories and skills"
+      "@Project Manager review this finished work for project skill updates",
+      "@Project Manager decide where this project memory should be stored"
     ],
     "brandColor": "#2563EB",
     "screenshots": []

@@ -5,17 +5,12 @@ import re
 from pathlib import Path
 
 HEADING_RE = re.compile(r"^##\s+(.+)$", re.MULTILINE)
-TOPIC_PRIORITY = {
-    "workflows.md": 0,
-    "architecture.md": 1,
-    "pitfalls.md": 2,
-}
 
 
 def find_memory_overlaps(memories_root: Path) -> list[tuple[str, str, str]]:
     files = sorted(
         memories_root.rglob("*.md"),
-        key=lambda path: (path.parent.as_posix(), TOPIC_PRIORITY.get(path.name, 99), path.name),
+        key=lambda path: (path.parent.as_posix(), path.name),
     )
     indexed: dict[str, list[str]] = {}
     for file_path in files:

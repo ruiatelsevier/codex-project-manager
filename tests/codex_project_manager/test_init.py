@@ -19,19 +19,19 @@ from project_manager.init import (
 def test_creates_agents_file_with_working_rules(tmp_path: Path):
     agents = tmp_path / "AGENTS.md"
 
-    result = ensure_agents_file(agents, ["Run focused pytest before closing agent-core edits"])
+    result = ensure_agents_file(agents, ["Run focused pytest before closing frontend edits"])
 
     assert agents.read_text(encoding="utf-8") == (
         "# AGENTS.md\n"
         "\n"
         "## Working Rules\n"
         "\n"
-        "- Run focused pytest before closing agent-core edits\n"
+        "- Run focused pytest before closing frontend edits\n"
     )
     assert result == {
         "target": "AGENTS.md",
         "status": "created",
-        "rules_added": ["- Run focused pytest before closing agent-core edits"],
+        "rules_added": ["- Run focused pytest before closing frontend edits"],
     }
 
 
@@ -39,7 +39,7 @@ def test_appends_bounded_section_when_agents_exists(tmp_path: Path):
     agents = tmp_path / "AGENTS.md"
     agents.write_text("# Existing\n\n## Working Rules\n\n- Keep existing rule\n", encoding="utf-8")
     rules = [
-        "Run focused pytest before closing agent-core edits",
+        "Run focused pytest before closing frontend edits",
         "Keep memory updates project-local",
     ]
 
@@ -50,14 +50,14 @@ def test_appends_bounded_section_when_agents_exists(tmp_path: Path):
     assert "## Working Rules\n\n- Keep existing rule" in text
     assert (
         "## Codex Project Manager Rules\n\n"
-        "- Run focused pytest before closing agent-core edits\n"
+        "- Run focused pytest before closing frontend edits\n"
         "- Keep memory updates project-local"
     ) in text
     assert result == {
         "target": "AGENTS.md",
         "status": "updated",
         "rules_added": [
-            "- Run focused pytest before closing agent-core edits",
+            "- Run focused pytest before closing frontend edits",
             "- Keep memory updates project-local",
         ],
     }
@@ -65,7 +65,7 @@ def test_appends_bounded_section_when_agents_exists(tmp_path: Path):
 
 def test_does_not_duplicate_existing_agents_rules(tmp_path: Path):
     agents = tmp_path / "AGENTS.md"
-    rule = "Run focused pytest before closing agent-core edits"
+    rule = "Run focused pytest before closing frontend edits"
 
     ensure_agents_file(agents, [rule])
     result = ensure_agents_file(agents, [rule])
@@ -94,7 +94,7 @@ def test_skips_agents_file_when_rules_empty(tmp_path: Path):
     }
 
 
-def test_creates_memory_topic_files_for_user_modules(tmp_path: Path):
+def test_creates_memory_dirs_for_user_modules_without_fixed_topics(tmp_path: Path):
     memories = tmp_path / "memories"
 
     result = ensure_memory_modules(memories, ["Frontend App", "api_service"])
@@ -103,26 +103,12 @@ def test_creates_memory_topic_files_for_user_modules(tmp_path: Path):
         "target": "memories",
         "status": "created",
         "modules": ["frontend-app", "api-service"],
-        "created": [
-            "frontend-app/architecture.md",
-            "frontend-app/workflows.md",
-            "frontend-app/pitfalls.md",
-            "api-service/architecture.md",
-            "api-service/workflows.md",
-            "api-service/pitfalls.md",
-        ],
+        "created": ["frontend-app", "api-service"],
         "skipped": [],
     }
     for module in ("frontend-app", "api-service"):
-        for topic in ("architecture", "workflows", "pitfalls"):
-            path = memories / module / f"{topic}.md"
-            assert path.read_text(encoding="utf-8") == (
-                f"# {topic.title()}\n"
-                "\n"
-                "## Initial Notes\n"
-                "\n"
-                f"This file stores durable {topic} knowledge for this module.\n"
-            )
+        assert (memories / module).is_dir()
+        assert not list((memories / module).iterdir())
 
 
 def test_skips_memory_creation_without_modules(tmp_path: Path):

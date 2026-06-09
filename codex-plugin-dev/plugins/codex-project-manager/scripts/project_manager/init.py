@@ -5,8 +5,6 @@ import json
 import re
 from pathlib import Path
 from typing import Sequence
-
-MEMORY_TOPICS = ("architecture", "workflows", "pitfalls")
 DEFAULT_HOOK_TEMPLATE = (
     "codex-plugin-dev/plugins/codex-project-manager/templates/hooks.json"
 )
@@ -29,20 +27,6 @@ def normalize_module_name(module: str) -> str:
     if not value:
         raise ValueError("Module name is required")
     return value
-
-
-def topic_title(topic: str) -> str:
-    return topic.title()
-
-
-def starter_memory_content(topic: str) -> str:
-    return (
-        f"# {topic_title(topic)}\n"
-        "\n"
-        "## Initial Notes\n"
-        "\n"
-        f"This file stores durable {topic} knowledge for this module.\n"
-    )
 
 
 def ensure_agents_file(path: Path, rules: list[str]) -> dict[str, object]:
@@ -118,15 +102,11 @@ def ensure_memory_modules(memories_root: Path, modules: list[str]) -> dict[str, 
     skipped = []
     for module_name in module_names:
         module_root = memories_root / module_name
-        module_root.mkdir(parents=True, exist_ok=True)
-        for topic in MEMORY_TOPICS:
-            topic_path = module_root / f"{topic}.md"
-            rel_path = f"{module_name}/{topic}.md"
-            if topic_path.exists():
-                skipped.append(rel_path)
-                continue
-            topic_path.write_text(starter_memory_content(topic), encoding="utf-8")
-            created.append(rel_path)
+        if module_root.exists():
+            skipped.append(module_name)
+            continue
+        module_root.mkdir(parents=True)
+        created.append(module_name)
 
     return {
         "target": memories_root.name,

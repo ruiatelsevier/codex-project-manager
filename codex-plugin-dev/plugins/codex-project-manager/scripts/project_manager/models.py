@@ -6,8 +6,7 @@ from typing import Literal
 CandidateKind = Literal[
     "rule",
     "knowledge",
-    "project_skill",
-    "global_preference_candidate",
+    "personal_memory",
 ]
 
 Confidence = Literal["low", "medium", "high"]

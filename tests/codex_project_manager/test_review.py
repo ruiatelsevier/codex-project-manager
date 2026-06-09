@@ -8,7 +8,13 @@ sys.path.insert(0, str(PLUGIN_SCRIPTS))
 from project_manager.review import build_suggestions, demo_candidates
 
 
-def test_project_skill_suggestion_uses_agents_skills_destination():
+def test_review_suggestions_use_memory_review_buckets():
     suggestions = build_suggestions(demo_candidates())
-    project_skill = next(suggestion for suggestion in suggestions if suggestion["kind"] == "project_skill")
-    assert project_skill["destination"] == ".agents/skills/agent-core-debugging/SKILL.md"
+    kinds = {suggestion["kind"] for suggestion in suggestions}
+    assert kinds == {"rule", "knowledge", "personal_memory"}
+
+
+def test_personal_memory_suggestion_requires_approval_destination():
+    suggestions = build_suggestions(demo_candidates())
+    personal_memory = next(suggestion for suggestion in suggestions if suggestion["kind"] == "personal_memory")
+    assert personal_memory["destination"] == "memory-tool-after-user-approval"

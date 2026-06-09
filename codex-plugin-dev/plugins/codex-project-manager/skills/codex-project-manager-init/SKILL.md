@@ -1,6 +1,6 @@
 ---
 name: codex-project-manager-init
-description: Initializes AGENTS.md, memories, .agents/skills, and an optional hook.
+description: Initializes AGENTS.md, confirmed memory module directories, .agents/skills, and an optional hook.
 ---
 
 # Codex Project Manager Init
@@ -26,7 +26,9 @@ memories/
    - If the user provides no rules, skip `AGENTS.md` writes.
 3. Ask whether to create optional memory module names under `memories/`.
    - Accept comma-separated or newline-separated module names.
-   - Module names are project-specific.
+   - Module names are project-specific components.
+   - Create only `memories/<module>/`; do not create fixed topic files.
+   - Long-term memory entries belong at `memories/<module>/<topic>.md` after the component and topic are clear.
    - If the user provides no modules, skip memory module creation.
 4. Ensure the project-local skills directory is `.agents/skills`.
 5. Ask before installing the optional hook into `.codex/hooks.json`.
