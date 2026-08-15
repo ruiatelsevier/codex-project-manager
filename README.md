@@ -79,8 +79,8 @@ Added marketplace `repo-local`
 ```
 
 If you add the marketplace from Codex's UI using the Git repository URL, keep `Git ref` set to
-`main` and leave `Sparse paths` empty, or set it to `codex-plugin-dev`. Do not set `Sparse paths`
-to `plugins/codex-project-manager`: that is the plugin directory, not the marketplace root.
+`main` and leave `Sparse paths` empty. The repository-root marketplace is at
+`.agents/plugins/marketplace.json`; do not set `Sparse paths` to a plugin directory.
 
 2. Verify the marketplace was registered:
 
