@@ -78,6 +78,10 @@ Expected output includes:
 Added marketplace `repo-local`
 ```
 
+If you add the marketplace from Codex's UI using the Git repository URL, keep `Git ref` set to
+`main` and leave `Sparse paths` empty, or set it to `codex-plugin-dev`. Do not set `Sparse paths`
+to `plugins/codex-project-manager`: that is the plugin directory, not the marketplace root.
+
 2. Verify the marketplace was registered:
 
 ```bash

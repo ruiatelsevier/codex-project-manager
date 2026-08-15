@@ -76,6 +76,10 @@ codex plugin marketplace add ./codex-plugin-dev
 Added marketplace `repo-local`
 ```
 
+如果在 Codex 界面中使用 Git 仓库 URL 添加 marketplace，`Git ref` 保持为 `main`，`Sparse paths`
+留空，或填写 `codex-plugin-dev`。不要填写 `plugins/codex-project-manager`，因为它是插件目录，
+不是包含 marketplace 清单的根目录。
+
 2. 验证 marketplace 已注册：
 
 ```bash
