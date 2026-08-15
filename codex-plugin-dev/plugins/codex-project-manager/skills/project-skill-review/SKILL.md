@@ -59,6 +59,14 @@ Output rules:
 
 - Do not write files automatically.
 - Present only project-skill suggestions.
+- For each reviewed session, summarize the transferable learnings in English:
+  1. What problem did we solve?
+  2. Which steps were repetitive and can be standardized?
+  3. Which decision rules materially affected the result?
+  4. What failures occurred, and what were their root causes?
+  5. Which commands, scripts, or templates are worth reusing?
+  6. Which details are specific to this project and should not be added to a general-purpose skill?
+  7. Output the proposed reusable workflow, decision rules, failure modes, reusable scripts/templates, and a suggested `SKILL.md` draft.
 - For each suggestion, include:
   - action: update existing skill, add support file, or create new skill
   - target path
