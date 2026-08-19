@@ -5,6 +5,16 @@ import json
 import re
 from pathlib import Path
 from typing import Sequence
+
+SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+import sys
+
+if str(SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_ROOT))
+
+from project_manager.blueprint import build_registration_plan
+from project_manager.projections import projection_assets, render_active_state
+from project_manager.registry import register
 DEFAULT_HOOK_TEMPLATE = (
     "codex-plugin-dev/plugins/codex-project-manager/templates/hooks.json"
 )
@@ -199,11 +209,46 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--project-skills-dir", default=".agents/skills")
     parser.add_argument("--install-hook", action="store_true")
     parser.add_argument("--hook-template", default=DEFAULT_HOOK_TEMPLATE)
+    parser.add_argument("--register", action="store_true", help="Build a project registration plan")
+    parser.add_argument("--execute", action="store_true", help="Persist a registration plan after confirmation")
+    parser.add_argument("--objective", default="")
+    parser.add_argument("--non-goal", action="append", default=[])
+    parser.add_argument("--authority-source", action="append", default=[])
+    parser.add_argument("--agent-id", action="append", default=[])
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
+    if args.execute and not args.register:
+        raise SystemExit("--execute requires --register")
+    if args.register:
+        root = Path(args.root)
+        plan = build_registration_plan(
+            root=root,
+            objective=args.objective,
+            non_goals=args.non_goal,
+            modules=args.module or None,
+            authority_sources=args.authority_source or None,
+        )
+        plan["registry"]["projections"]["assets"] = projection_assets(root, plan["registry"])
+        if args.agent_id:
+            selected = set(args.agent_id)
+            known = {agent["id"] for agent in plan["registry"]["runtime"]["agents"]}
+            unknown = sorted(selected - known)
+            if unknown:
+                raise SystemExit(f"Unknown discovered Agent profile: {', '.join(unknown)}")
+            for agent in plan["registry"]["runtime"]["agents"]:
+                if agent["id"] in selected:
+                    agent["project_registered"] = True
+                    agent["status"] = "project_registered"
+        if not args.execute:
+            print(json.dumps(plan, indent=2, sort_keys=True))
+            return 0
+        result = register(root, plan["registry"], render_active_state(plan["registry"], {}))
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return 0
+
     summary = build_summary(
         root=Path(args.root),
         rules=args.rules,

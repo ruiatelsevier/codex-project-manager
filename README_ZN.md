@@ -13,6 +13,11 @@ Codex Project Manager 是一个仓库本地的 Codex 插件，用来在阶段边
 - 项目知识：`memories/<module>/<topic>.md`
 - 项目本地可复用工作流：`.agents/skills/`
 
+插件同时提供轻量项目控制平面。`codex-project-manager-init` 会先只读生成 RegistrationPlan，
+扫描 `$CODEX_HOME/agents/*.toml`（未设置时回退到 `~/.codex/agents/`），确认后才写入
+`.codex/registry.json`、首屏状态和 append-only ledger。`codex-project-manager-update-registry`
+扫描 `docs/**/*.md`，只按用户逐字段确认的决策更新规划层。
+
 插件默认保持保守：它可以提出个人或全局 memory 候选，但不会自动写入。个人 memory 只有在用户明确批准后才保存。
 
 ## 仓库内容
@@ -51,6 +56,18 @@ tests/codex_project_manager/
 - `memories/` 是组件级长期项目记忆的根目录。
 - `.agents/skills/` 用于未来的项目本地 skill。
 - `.codex/hooks.json` 安装了可选的 Project Manager 提醒 hook。
+
+## 注册项目
+
+先运行 dry-run：
+
+```bash
+python3 codex-plugin-dev/plugins/codex-project-manager/scripts/project_manager/init.py \
+  --register --objective "<确认后的项目目标>"
+```
+
+确认目标、模块、权威文档、验证命令和允许注册的 Agent profile 后，再追加 `--execute`。
+注册使用项目相对路径、文件锁和原子替换，不覆盖已有的 `AGENTS.md`、memory、skill 或 hook。
 
 ## 依赖
 
@@ -115,7 +132,7 @@ python3 -m venv .venv
 预期结果：
 
 ```text
-23 passed
+32 passed
 ```
 
 ## 核心工作流

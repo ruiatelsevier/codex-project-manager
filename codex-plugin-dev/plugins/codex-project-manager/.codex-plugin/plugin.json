@@ -21,7 +21,7 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Project Manager",
-    "shortDescription": "Capture repo rules, knowledge, and skills",
+    "shortDescription": "Register projects and preserve repo rules, knowledge, and skills",
     "longDescription": "A Codex plugin that helps preserve project rules in AGENTS.md, project knowledge in memories/, and project-local skills in .agents/skills, with initialization and review workflows inspired by Hermes Agent.",
     "developerName": "Local Development",
     "category": "Productivity",
@@ -35,6 +35,7 @@
     "termsOfServiceURL": "https://example.invalid/terms",
     "defaultPrompt": [
       "@Project Manager initialize this repo with codex-project-manager-init",
+      "@Project Manager update the registered project from docs with codex-project-manager-update-registry",
       "@Project Manager review this finished work and suggest project memory updates",
       "@Project Manager review this finished work for project skill updates",
       "@Project Manager decide where this project memory should be stored"

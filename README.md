@@ -13,6 +13,12 @@ It helps a repository keep three kinds of durable context:
 - Project knowledge in `memories/<module>/<topic>.md`
 - Project-local repeatable workflows in `.agents/skills/`
 
+It also provides a project control plane. The slash skill `codex-project-manager-init` first emits a
+read-only RegistrationPlan, including `$CODEX_HOME/agents/*.toml` candidates, and writes only after
+confirmation. Registration creates `.codex/registry.json`, `.codex/ACTIVE_PROJECT_STATE.md`, and
+append-only ledgers. `codex-project-manager-update-registry` scans `docs/**/*.md` and applies only
+field-level, user-confirmed planning decisions.
+
 The plugin is intentionally conservative. It suggests global memory candidates, but it does not write to
 personal/global memory automatically. Personal memory is saved only after explicit user approval.
 
@@ -25,16 +31,25 @@ codex-plugin-dev/
     .codex-plugin/plugin.json
     skills/
       codex-project-manager-init/SKILL.md
+      codex-project-manager-update-registry/SKILL.md
       project-memory-locations/SKILL.md
       project-review/SKILL.md
       project-skill-review/SKILL.md
     scripts/project_manager/
+      agent_discovery.py
       apply.py
+      assign.py
+      blueprint.py
       classify.py
       init.py
       memory_paths.py
       models.py
+      projections.py
+      registry.py
+      registry_update.py
       review.py
+      routing.py
+      work_items.py
     templates/hooks.json
 memories/
   <module>/
@@ -53,6 +68,26 @@ This repository is already initialized for Codex Project Manager:
 - `memories/` is the root for component-specific long-term project memory.
 - `.agents/skills/` exists for future project-local skills.
 - `.codex/hooks.json` is installed for the optional Project Manager reminder hook.
+
+## Register a Project
+
+From the repository root, run the dry-run plan first:
+
+```bash
+python3 codex-plugin-dev/plugins/codex-project-manager/scripts/project_manager/init.py \
+  --register --objective "<confirmed objective>"
+```
+
+After confirming the objective, modules, authority sources, verification commands, and selected
+Agent profiles, rerun with `--execute`. The operation uses project-relative paths, a registry lock,
+and atomic replacement. Existing `AGENTS.md`, memory, skill, and hook content is not overwritten.
+
+Assignment is also preview-only by default:
+
+```bash
+python3 codex-plugin-dev/plugins/codex-project-manager/scripts/project_manager/assign.py \
+  --root . --dry-run
+```
 
 ## Requirements
 
@@ -119,7 +154,7 @@ python3 -m venv .venv
 Expected result:
 
 ```text
-23 passed
+32 passed
 ```
 
 ## Core Workflows
